@@ -43,7 +43,7 @@ class CategoryResource extends Resource
 
                 FileUpload::make('attachment')
                     ->label('Lampiran Gambar')
-                    ->directory('quiz-question/attachments')
+                    ->directory('categories/attachments')
                     ->acceptedFileTypes(['image/*', 'application/pdf'])
                     ->maxSize(2048),
             ]);

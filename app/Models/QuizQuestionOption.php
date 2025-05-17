@@ -12,4 +12,13 @@ class QuizQuestionOption extends Model
     {
         return $this->belongsTo(QuizQuestion::class, 'quiz_question_id');
     }
+
+    public function getAttachmentUrlAttribute()
+    {
+        return transformedUrlAttachment($this->attachment1);
+    }
+
+    protected $appends = [
+        'attachment_url',
+    ];
 }

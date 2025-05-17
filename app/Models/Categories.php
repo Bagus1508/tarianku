@@ -14,7 +14,7 @@ class Categories extends Model
     protected $table = 'categories';
 
     // Tentukan atribut yang bisa diisi (Mass Assignment)
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'attachment'];
 
     // Tentukan apakah model menggunakan timestamps (created_at, updated_at)
     public $timestamps = true;

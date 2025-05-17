@@ -68,13 +68,13 @@ class DanceResource extends Resource
                     ->directory('dances/attachments')
                     ->acceptedFileTypes(['image/*', 'application/pdf'])
                     ->maxSize(2048)
-                    ->required(), // Dalam KB
+                    ->required(),
 
-                FileUpload::make('attachment2')
-                    ->label('Lampiran 2')
-                    ->directory('dances/attachments')
-                    ->acceptedFileTypes(['image/*', 'application/pdf'])
-                    ->maxSize(2048),
+                // FileUpload::make('attachment2')
+                //     ->label('Lampiran 2')
+                //     ->directory('dances/attachments')
+                //     ->acceptedFileTypes(['image/*', 'application/pdf'])
+                //     ->maxSize(2048),
 
                 Toggle::make('is_archived')
                     ->label('Arsipkan?'),

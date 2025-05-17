@@ -33,4 +33,13 @@ class QuizQuestion extends Model
     {
         return $this->hasMany(QuizQuestionOption::class);
     }
+
+    public function getAttachmentUrlAttribute()
+    {
+        return transformedUrlAttachment($this->attachment1);
+    }
+
+    protected $appends = [
+        'attachment_url',
+    ];
 }

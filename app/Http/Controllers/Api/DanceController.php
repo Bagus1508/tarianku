@@ -15,4 +15,17 @@ class DanceController extends Controller
 
         return new DanceResource(true, 'List Data Tari', $dances);
     }
+
+    public function show($id)
+    {
+        $dance = Dance::find($id);
+
+        $data = [
+            ...$dance->toArray(),
+            'attachment1' => transformedUrlAttachment($dance->attachment1),
+            'attachment2' => transformedUrlAttachment($dance->attachment2),
+        ];
+
+        return new DanceResource(true, 'Detail Data Tari', $data);
+    }
 }
