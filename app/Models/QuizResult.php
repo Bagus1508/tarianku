@@ -10,20 +10,15 @@ class QuizResult extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nama',
-        'quiz_question_id',
-        'selected_option',
-        'is_correct',
-        'time_taken',
+        'name', 
+        'total_correct',
+        'total_questions',
+        'total_time',
+        'total_point',
     ];
 
-    public function quiz_question()
+    public function answers()
     {
-        return $this->belongsTo(QuizQuestion::class, 'quiz_question_id');
-    }
-
-    public function selectedOption()
-    {
-        return $this->belongsTo(QuizQuestionOption::class, 'selected_option');
+        return $this->hasMany(QuizAnswer::class);
     }
 }

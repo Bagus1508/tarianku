@@ -13,11 +13,11 @@ return new class extends Migration
     {
     Schema::create('quiz_results', function (Blueprint $table) {
         $table->id();
-        $table->string('nama');
-        $table->foreignId('quiz_question_id')->constrained()->onDelete('cascade');
-        $table->string('selected_option')->nullable();
-        $table->boolean('is_correct')->default(false);
-        $table->integer('time_taken')->default(0);
+        $table->string('name');
+        $table->integer('total_correct');
+        $table->integer('total_questions');
+        $table->integer('total_time');
+        $table->integer('total_point')->default(0);
         $table->timestamps();
         $table->softDeletes();
     });

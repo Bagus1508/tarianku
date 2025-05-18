@@ -21,6 +21,11 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\BadgeColumn;
 
 use App\Models\Question;
+use App\Models\QuizQuestion;
+use App\Models\QuizQuestionOption;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Repeater;
 
 class QuizResultResource extends Resource
 {
@@ -40,68 +45,134 @@ class QuizResultResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                TextInput::make('nama')
-                    ->label('Nama')
-                    ->required(),
+        $isCreating = $form->getOperation() === 'create';
+        $questions = QuizQuestion::with('options')->get();
 
-                Select::make('quiz_question_id')
-                    ->label('Pertanyaan')
-                    ->relationship('quiz_question', 'question_text')
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->live(),
+        return $form->schema([
+            TextInput::make('name')
+                ->label('Nama')
+                ->required()
+                ->columnSpanFull(),
 
-                Select::make('selected_option')
-                    ->label('Jawaban Dipilih')
-                    ->required()
-                    ->options(function (callable $get) {
-                        $questionId = $get('quiz_question_id');
-                        if (!$questionId) return [];
+            $isCreating
+                ? Repeater::make('answers')
+                ->schema([
+                    TextInput::make('question_text')
+                        ->label('Pertanyaan')
+                        ->disabled()
+                        ->dehydrated(false)
+                        ->columnSpanFull(),
 
-                        return \App\Models\QuizQuestionOption::where('quiz_question_id', $questionId)
-                            ->pluck('option_text', 'id')
-                            ->toArray();
-                    })
-                    ->reactive()  // Penting: bikin langsung update state setelah berubah
-                    ->afterStateUpdated(function ($state, callable $set) {
-                        $option = \App\Models\QuizQuestionOption::find($state);
-                        $set('is_correct', $option?->is_correct ?? false);
-                    }),
+                    Hidden::make('quiz_question_id')->required(),
 
-                Toggle::make('is_correct')
-                    ->label('Benar?')
-                    ->reactive()
-                    ->disabled(fn() => true),  // User tidak bisa ubah manual
+                    Select::make('quiz_option_id')
+                        ->label('Jawaban')
+                        ->options(function ($get) {
+                            return \App\Models\QuizQuestionOption::where('quiz_question_id', $get('quiz_question_id'))
+                                ->pluck('option_text', 'id');
+                        })
+                        ->required()
+                        ->live()
+                        ->afterStateUpdated(function ($state, $set) {
+                            $option = \App\Models\QuizQuestionOption::find($state);
+                            $set('is_correct', $option?->is_correct ?? false);
+                        })
+                        ->columnSpanFull(),
 
-                TextInput::make('time_taken')
-                    ->label('Waktu (detik)')
-                    ->numeric()
-                    ->required(),
-            ]);
+                    Toggle::make('is_correct')
+                        ->label('Benar?')
+                        ->disabled()
+                        ->dehydrated()
+                        ->columnSpanFull(),
+
+                    TextInput::make('time_taken')
+                        ->label('Waktu (detik)')
+                        ->numeric()
+                        ->required()
+                        ->columnSpanFull(),
+                ])
+                ->default(function () {
+                    return \App\Models\QuizQuestion::all()->map(function ($q) {
+                        return [
+                            'quiz_question_id' => $q->id,
+                            'question_text' => $q->question_text,
+                            'quiz_option_id' => null,
+                            'is_correct' => false,
+                            'time_taken' => 0,
+                        ];
+                    })->toArray();
+                })
+                ->columns(1)
+                ->columnSpanFull()
+                ->disableItemCreation()
+                ->disableLabel()
+                : Repeater::make('answers')
+                ->relationship('answers')
+                ->schema([
+                    Placeholder::make('question_text')
+                        ->label('Pertanyaan')
+                        ->content(function ($record) {
+                            return $record?->question?->question_text ?? '-';
+                        })
+                        ->columnSpanFull(),
+
+                    Hidden::make('quiz_question_id')->required(),
+
+                    Select::make('quiz_option_id')
+                        ->label('Jawaban')
+                        ->options(function ($get) {
+                            return \App\Models\QuizQuestionOption::where('quiz_question_id', $get('quiz_question_id'))
+                                ->pluck('option_text', 'id');
+                        })
+                        ->required()
+                        ->live()
+                        ->afterStateUpdated(function ($state, $set) {
+                            $option = \App\Models\QuizQuestionOption::find($state);
+                            $set('is_correct', $option?->is_correct ?? false);
+                        })
+                        ->columnSpanFull(),
+
+                    Toggle::make('is_correct')
+                        ->label('Benar?')
+                        ->disabled()
+                        ->dehydrated()
+                        ->columnSpanFull(),
+
+                    TextInput::make('time_taken')
+                        ->label('Waktu (detik)')
+                        ->numeric()
+                        ->required()
+                        ->columnSpanFull(),
+                ])
+                ->columns(1)
+                ->columnSpanFull()
+                ->disableItemCreation()
+                ->disableLabel(),
+        ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('nama')
+                TextColumn::make('name')
                     ->label('Nama')
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('selectedOption.option_text')
-                    ->label('Jawaban Dipilih')
+                TextColumn::make('total_correct')
+                    ->label('Benar'),
+
+                TextColumn::make('total_questions')
+                    ->label('Total Soal'),
+
+                TextColumn::make('total_time')
+                    ->label('Waktu (detik)')
                     ->sortable(),
 
-                IconColumn::make('is_correct')
-                    ->label('Benar?')
-                    ->boolean(),
-
-                TextColumn::make('time_taken')
-                    ->label('Waktu (detik)')
+                TextColumn::make('created_at')
+                    ->label('Tanggal')
+                    ->dateTime('d M Y H:i')
                     ->sortable(),
             ])
             ->filters([
@@ -116,6 +187,11 @@ class QuizResultResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function eagerLoadRelations(): array
+    {
+        return ['answers'];
     }
 
     public static function getRelations(): array
