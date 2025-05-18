@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AnswerQuizController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\DanceController;
 use App\Http\Controllers\Api\QuizQuestionController;
@@ -19,3 +20,6 @@ Route::get('/categories', [CategoryController::class, 'index']);
 
 /* Quiz Question API */
 Route::get('/quiz-questions', [QuizQuestionController::class, 'index']);
+
+/* Quiz Answer API */
+Route::post('/answer-quiz', [AnswerQuizController::class, 'store']);

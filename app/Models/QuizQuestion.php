@@ -21,6 +21,11 @@ class QuizQuestion extends Model
         'attachment1'
     ];
 
+    public array $typeEnums = [
+        1 => 'Tanpa Gambar',
+        2 => 'Dengan Gambar',
+    ];
+
     /**
      * Relasi ke model Dance (jika ada).
      */
@@ -36,10 +41,20 @@ class QuizQuestion extends Model
 
     public function getAttachmentUrlAttribute()
     {
+        if(($this->type === 2) && is_null($this->attachment1)) {
+            return asset('image/no_image.jpg');
+        }
+
         return transformedUrlAttachment($this->attachment1);
     }
 
+    public function getTypeDescriptionAttribute()
+    {
+        return $this->typeEnums[$this->type] ?? null;
+    }
+
     protected $appends = [
+        'type_description',
         'attachment_url',
     ];
 }
