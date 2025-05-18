@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\QuizAnswer;
 use App\Models\QuizResult;
 use App\Models\QuizQuestion;
 use Filament\Widgets\Widget;
@@ -14,11 +15,11 @@ class QuizActivityOverview extends Widget
 
     public function getViewData(): array
     {
-        $totalParticipation = QuizResult::distinct('nama')->count('nama');
+        $totalParticipation = QuizResult::distinct('name')->count('name');
 
-        $averageScore = QuizResult::selectRaw('AVG(is_correct) as avg_score')->value('avg_score') * 100;
+        $averageScore = QuizAnswer::selectRaw('AVG(is_correct) as avg_score')->value('avg_score') * 100;
 
-        $mostIncorrectQuestion = QuizResult::where('is_correct', false)
+        $mostIncorrectQuestion = QuizAnswer::where('is_correct', false)
             ->selectRaw('quiz_question_id, COUNT(*) as total_wrong')
             ->groupBy('quiz_question_id')
             ->orderByDesc('total_wrong')
