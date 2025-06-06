@@ -45,9 +45,11 @@ class CreateQuizResult extends CreateRecord
         $record = $this->record;
         $questionIds = collect($this->form->getState()['answers'])->pluck('quiz_question_id')->unique();
         $questions = QuizQuestion::whereIn('id', $questionIds)->get()->keyBy('id');
+        $name = $this->form->getState()['name'];
 
         foreach ($this->form->getState()['answers'] as $answer) {
             $record->answers()->create([
+                'user_name' => $name,
                 'quiz_question_id' => $answer['quiz_question_id'],
                 'quiz_option_id' => $answer['quiz_option_id'],
                 'is_correct' => $answer['is_correct'],
