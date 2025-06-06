@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('quiz_answers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('quiz_result_id')->constrained();
             $table->foreignId('quiz_question_id')->constrained();
             $table->foreignId('quiz_option_id')->constrained('quiz_question_options');
             $table->boolean('is_correct');
