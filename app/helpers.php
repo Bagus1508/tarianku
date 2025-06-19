@@ -1,6 +1,12 @@
 <?php
 
+use Illuminate\Support\Facades\Storage;
+
 function transformedUrlAttachment($path)
 {
-    return $path ? asset('storage/'. $path) : null;
+    if ($path && Storage::disk('public')->exists($path)) {
+        return asset('storage/' . ltrim($path, '/'));
+    }
+
+    return asset('images/no_image.jpg'); // pastikan ini berada di public/images/
 }

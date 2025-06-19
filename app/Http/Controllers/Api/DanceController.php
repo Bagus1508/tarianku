@@ -20,6 +20,12 @@ class DanceController extends Controller
             $origin = 'All';
         }
 
+        $dances->getCollection()->transform(function ($dance) {
+            $dance->attachment1 = transformedUrlAttachment($dance->attachment1);
+            $dance->attachment2 = transformedUrlAttachment($dance->attachment2);
+            return $dance;
+        });
+
         return new DanceResource(true, 'List Data Tari', [
             'origin_id' => $request->origin_id ?? null,
             'origin' => $origin ?? null,
