@@ -8,5 +8,5 @@ function transformedUrlAttachment($path)
         return asset('storage/' . ltrim($path, '/'));
     }
 
-    return asset('images/no_image.jpg'); // pastikan ini berada di public/images/
+    return asset('image/no_image.jpg'); // pastikan ini berada di public/images/
 }
